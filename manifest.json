@@ -1,0 +1,11 @@
+
+{
+  "name": "StudyMate AI",
+  "short_name": "StudyMate",
+  "description": "Your personal AI study assistant",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090914",
+  "theme_color": "#090914"
+}
