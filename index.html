@@ -1,11 +1,11 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090914">
+<meta name="description" content="StudyMate AI - Your personal AI learning assistant">
 <title>StudyMate AI</title>
 <link rel="manifest" href="manifest.json">
 
@@ -96,10 +96,13 @@ main {
   border-radius: 15px;
   text-align: left;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-.tool:active {
+.tool:active,
+.tool.active {
   background: #292044;
+  border-color: #9562ed;
 }
 
 .tool span {
@@ -126,7 +129,12 @@ main {
   border-radius: 18px;
 }
 
-input, textarea, select {
+.panel h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+input, textarea {
   width: 100%;
   background: #090914;
   color: white;
@@ -140,36 +148,53 @@ input, textarea, select {
 
 textarea {
   resize: vertical;
-  min-height: 95px;
+  min-height: 110px;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   border-color: #9562ed;
 }
 
-button {
-  font: inherit;
+label {
+  display: block;
+  margin-top: 15px;
 }
 
 .primary {
   background: linear-gradient(100deg,#9333ea,#3868ef);
   color: white;
   border: none;
-  padding: 13px;
+  padding: 14px;
   border-radius: 11px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 15px;
   font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .secondary {
   background: #242139;
   color: white;
   border: 1px solid #3b3655;
-  padding: 10px;
+  padding: 11px;
   border-radius: 9px;
   cursor: pointer;
+  margin-top: 12px;
+}
+
+.status {
+  font-size: 13px;
+  color: #aaa5c1;
+  margin-top: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 #answer {
@@ -179,23 +204,10 @@ button {
   padding: 15px;
   border-radius: 12px;
   border: 1px solid #393153;
-  line-height: 1.7;
+  line-height: 1.8;
   font-size: 14px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-}
-
-.status {
-  font-size: 12px;
-  color: #a5a0bb;
-  margin-top: 10px;
-}
-
-.footer {
-  text-align: center;
-  color: #79758f;
-  font-size: 12px;
-  margin-top: 30px;
 }
 
 .key-help {
@@ -205,6 +217,19 @@ button {
   margin-top: 8px;
 }
 
+.footer {
+  text-align: center;
+  color: #79758f;
+  font-size: 12px;
+  margin-top: 30px;
+  padding-bottom: 15px;
+}
+
+@media(max-width:360px) {
+  .tools {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 
@@ -231,29 +256,35 @@ button {
 <h3 class="section-title">Study tools</h3>
 
 <div class="tools">
-  <button class="tool" onclick="setMode('chat')">
+
+  <button class="tool active"
+    onclick="setMode('chat',this)">
     <span>🤖</span>
     <strong>AI Tutor</strong>
     <small>Ask questions and learn</small>
   </button>
 
-  <button class="tool" onclick="setMode('summary')">
+  <button class="tool"
+    onclick="setMode('summary',this)">
     <span>📝</span>
     <strong>Notes Summary</strong>
     <small>Summarize long notes</small>
   </button>
 
-  <button class="tool" onclick="setMode('quiz')">
+  <button class="tool"
+    onclick="setMode('quiz',this)">
     <span>🧠</span>
     <strong>Quiz Generator</strong>
     <small>Practice with MCQs</small>
   </button>
 
-  <button class="tool" onclick="setMode('flashcard')">
+  <button class="tool"
+    onclick="setMode('flashcard',this)">
     <span>📚</span>
     <strong>Flashcards</strong>
     <small>Remember key concepts</small>
   </button>
+
 </div>
 
 <section class="panel">
@@ -261,33 +292,41 @@ button {
   <h3 id="modeTitle">🤖 Ask your AI Tutor</h3>
 
   <label for="apiKey" class="status">
-    Gemini API key (enter for this session only)
+    Gemini API key (this session only)
   </label>
 
   <input
     id="apiKey"
     type="password"
-    placeholder="Paste your API key"
+    placeholder="Enter your Gemini API key"
     autocomplete="off"
   >
 
   <p class="key-help">
-    Your key is kept in memory, not saved in browser storage.
-    Never publish it or share it with anyone.
+    Your key is not saved in browser storage or GitHub.
+    Do not share it with anyone. Browser API requests
+    can still expose keys during use.
   </p>
 
-  <label for="prompt" class="status">Your question or study material</label>
+  <label for="prompt" class="status">
+    Your question or study material
+  </label>
 
   <textarea
     id="prompt"
     placeholder="Example: Explain machine learning with simple examples..."
   ></textarea>
 
-  <button class="primary" id="generateBtn" onclick="generate()">
+  <button
+    class="primary"
+    id="generateBtn"
+    onclick="generate()">
     ✨ Generate with AI
   </button>
 
-  <p class="status" id="status">Ready to help you learn.</p>
+  <p class="status" id="status">
+    Ready to help you learn.
+  </p>
 
   <div id="answer"></div>
 
@@ -295,9 +334,8 @@ button {
     class="secondary"
     id="copyBtn"
     onclick="copyAnswer()"
-    style="display:none;margin-top:12px"
-  >
-    Copy answer
+    style="display:none">
+    📋 Copy answer
   </button>
 
 </section>
@@ -309,6 +347,15 @@ button {
 </main>
 
 <script>
+
+// GEMINI CONFIGURATION
+
+const MODEL = "gemini-3.8-flash";
+
+const API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/"
+  + MODEL + ":generateContent";
+
 let currentMode = "chat";
 let lastAnswer = "";
 
@@ -319,20 +366,36 @@ const titles = {
   flashcard: "📚 Create flashcards"
 };
 
+const placeholders = {
+  chat:
+    "Ask me anything about your studies...",
+
+  summary:
+    "Paste your study notes here...",
+
+  quiz:
+    "Enter a subject or topic for your quiz...",
+
+  flashcard:
+    "Enter a topic for your flashcards..."
+};
+
 const instructions = {
+
   chat:
     "You are StudyMate AI, a friendly academic tutor. " +
     "Explain concepts step by step in simple language. " +
-    "Use examples and clear headings.",
+    "Use examples, headings and clear explanations.",
 
   summary:
     "You are StudyMate AI. Summarize the supplied study notes. " +
-    "Include key points, important definitions and a short conclusion.",
+    "Include key points, important definitions and a short conclusion. " +
+    "Do not invent information missing from the notes.",
 
   quiz:
     "You are StudyMate AI. Create 5 multiple-choice questions " +
     "from the supplied topic or notes. Give four options per question. " +
-    "Provide the answer key and short explanations at the end.",
+    "Provide the correct answer and a short explanation after each question.",
 
   flashcard:
     "You are StudyMate AI. Create 8 useful study flashcards " +
@@ -340,130 +403,258 @@ const instructions = {
     "and ANSWER. Keep answers concise."
 };
 
-function setMode(mode) {
+
+// CHANGE STUDY MODE
+
+function setMode(mode, element) {
+
   currentMode = mode;
+
   document.getElementById("modeTitle").textContent =
     titles[mode];
 
   document.getElementById("prompt").placeholder =
-    mode === "summary"
-    ? "Paste your study notes here..."
-    : mode === "quiz"
-    ? "Enter a subject or topic for your quiz..."
-    : mode === "flashcard"
-    ? "Enter a topic for your flashcards..."
-    : "Ask me anything about your studies...";
+    placeholders[mode];
+
+  document.querySelectorAll(".tool").forEach(button => {
+    button.classList.remove("active");
+  });
+
+  if (element) {
+    element.classList.add("active");
+  }
+
+  document.getElementById("status").textContent =
+    "Selected: " + titles[mode];
+
 }
 
+
+// GENERATE AI RESPONSE
+
 async function generate() {
-  const key = document.getElementById("apiKey").value.trim();
-  const prompt = document.getElementById("prompt").value.trim();
 
-  const status = document.getElementById("status");
-  const answer = document.getElementById("answer");
-  const button = document.getElementById("generateBtn");
+  const API_KEY =
+    document.getElementById("apiKey").value.trim();
 
-  if (!key) {
-    status.textContent = "Please enter your Gemini API key.";
+  const prompt =
+    document.getElementById("prompt").value.trim();
+
+  const status =
+    document.getElementById("status");
+
+  const answer =
+    document.getElementById("answer");
+
+  const button =
+    document.getElementById("generateBtn");
+
+  const copyBtn =
+    document.getElementById("copyBtn");
+
+  if (!API_KEY) {
+    status.textContent =
+      "Please enter your Gemini API key.";
     return;
   }
 
   if (!prompt) {
-    status.textContent = "Please enter a question or topic.";
+    status.textContent =
+      "Please enter a question or topic.";
     return;
   }
 
   button.disabled = true;
   button.textContent = "Generating...";
-  status.textContent = "AI is preparing your answer...";
+
   answer.style.display = "none";
+  copyBtn.style.display = "none";
+
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 45000);
 
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-      {
+
+    let data = null;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+
+      status.textContent =
+        attempt === 0
+        ? "Connecting to Gemini AI..."
+        : "Gemini is busy. Retrying...";
+
+      const response = await fetch(API_URL, {
+
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": key
+          "x-goog-api-key": API_KEY
         },
+
         body: JSON.stringify({
+
           systemInstruction: {
-            parts: [{ text: instructions[currentMode] }]
+            parts: [{
+              text: instructions[currentMode]
+            }]
           },
+
           contents: [{
             role: "user",
-            parts: [{ text: prompt }]
+            parts: [{
+              text: prompt
+            }]
           }],
+
           generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 2048
           }
-        })
+
+        }),
+
+        signal: controller.signal
+
+      });
+
+      data = await response.json();
+
+      if (response.ok) {
+        break;
       }
-    );
 
-    const data = await response.json();
+      const errorMessage =
+        data.error?.message || "Gemini API request failed.";
 
-    if (!response.ok) {
+      if (
+        (response.status === 429 ||
+         response.status === 503) &&
+        attempt < 2
+      ) {
+
+        status.textContent =
+          "Temporary server issue. Retrying...";
+
+        await new Promise(resolve => {
+          setTimeout(resolve, 2000 * (attempt + 1));
+        });
+
+        continue;
+      }
+
       throw new Error(
-        data.error?.message || "API request failed."
+        "HTTP " + response.status + ": " + errorMessage
+      );
+
+    }
+
+    if (!data || !data.candidates?.[0]?.content?.parts) {
+      throw new Error(
+        data?.error?.message || "No AI response received."
       );
     }
 
-    const text =
-      data.candidates?.[0]?.content?.parts
-        ?.map(part => part.text || "")
-        .join("") || "No text response received.";
+    const result =
+      data.candidates[0].content.parts
+      .map(part => part.text || "")
+      .join("");
 
-    lastAnswer = text;
-    answer.textContent = text;
+    if (!result) {
+      throw new Error("Gemini returned an empty response.");
+    }
+
+    lastAnswer = result;
+
+    answer.textContent = result;
     answer.style.display = "block";
 
-    document.getElementById("copyBtn").style.display =
-      "inline-block";
+    copyBtn.style.display = "inline-block";
 
-    status.textContent = "✓ AI response generated successfully.";
+    status.textContent =
+      "✓ Powered by Gemini AI!";
 
   } catch (error) {
-    status.textContent = "Error: " + error.message;
+
+    if (error.name === "AbortError") {
+
+      status.textContent =
+        "Request timed out. Check your internet and try again.";
+
+    } else {
+
+      status.textContent =
+        "Gemini Error: " + error.message;
+
+    }
+
   } finally {
+
+    clearTimeout(timeout);
+
     button.disabled = false;
-    button.textContent = "✨ Generate with AI";
+
+    button.textContent =
+      "✨ Generate with AI";
+
   }
+
 }
 
-function copyAnswer() {
+
+// COPY ANSWER
+
+async function copyAnswer() {
+
   if (!lastAnswer) return;
 
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(lastAnswer)
-      .then(() => {
-        document.getElementById("status").textContent =
-          "Answer copied!";
-      })
-      .catch(() => fallbackCopy());
-  } else {
-    fallbackCopy();
+  try {
+
+    await navigator.clipboard.writeText(lastAnswer);
+
+    document.getElementById("status").textContent =
+      "✓ Answer copied!";
+
+  } catch (error) {
+
+    const area = document.createElement("textarea");
+
+    area.value = lastAnswer;
+
+    document.body.appendChild(area);
+
+    area.select();
+
+    document.execCommand("copy");
+
+    area.remove();
+
+    document.getElementById("status").textContent =
+      "Answer copied!";
+
   }
+
 }
 
-function fallbackCopy() {
-  const area = document.createElement("textarea");
-  area.value = lastAnswer;
-  document.body.appendChild(area);
-  area.select();
-  document.execCommand("copy");
-  area.remove();
-  document.getElementById("status").textContent =
-    "Answer copied!";
-}
 
-if ("serviceWorker" in navigator &&
-    location.protocol.startsWith("http")) {
+// OFFLINE SUPPORT
+
+if (
+  "serviceWorker" in navigator &&
+  location.protocol.startsWith("http")
+) {
+
   navigator.serviceWorker.register("./sw.js")
-    .catch(error => console.log("Offline setup:", error));
+    .catch(error => {
+      console.log("Service worker:", error);
+    });
+
 }
+
 </script>
 
 </body>
